@@ -67,3 +67,17 @@
 # Firebase Crashlytics
 -keep class com.google.firebase.crashlytics.** { *; }
 -dontwarn com.google.firebase.crashlytics.**
+
+# JSch (SSH library) and JZlib - dynamically instantiates ciphers, key exchange, and random via reflection
+-keep class com.jcraft.jsch.** { *; }
+-keep interface com.jcraft.jsch.** { *; }
+-dontwarn com.jcraft.jsch.**
+-keep class com.jcraft.jzlib.** { *; }
+-dontwarn com.jcraft.jzlib.**
+
+# Apache Commons Compress & XZ
+-keep class org.apache.commons.compress.** { *; }
+-dontwarn org.apache.commons.compress.**
+-keep class org.tukaani.xz.** { *; }
+-dontwarn org.tukaani.xz.**
+
