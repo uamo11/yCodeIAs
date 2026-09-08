@@ -31,7 +31,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Dns
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.NetworkCheck
@@ -66,6 +65,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -176,35 +176,39 @@ fun RemoteConnectionScreen(
     fun startVpsSetup() {
         if (onSetupVps == null) return
         scope.launch {
-            form = form.copy(
-                isBootstrapping = true,
-                bootstrapProgress = context.getString(R.string.vps_setting_up),
-                bootstrapLogs = emptyList(),
-                testMessage = null,
-                testSucceeded = false,
-            )
-            onSetupVps(form) { logLine ->
-                form = form.copy(
-                    bootstrapProgress = logLine,
-                    bootstrapLogs = form.bootstrapLogs + logLine,
+            form =
+                form.copy(
+                    isBootstrapping = true,
+                    bootstrapProgress = context.getString(R.string.vps_setting_up),
+                    bootstrapLogs = emptyList(),
+                    testMessage = null,
+                    testSucceeded = false,
                 )
+            onSetupVps(form) { logLine ->
+                form =
+                    form.copy(
+                        bootstrapProgress = logLine,
+                        bootstrapLogs = form.bootstrapLogs + logLine,
+                    )
             }.fold(
                 onSuccess = { result ->
                     val successMsg = "OpenCode v${result.version} listo en ${result.distro} (${result.arch})"
-                    form = form.copy(
-                        isBootstrapping = false,
-                        testSucceeded = true,
-                        testMessage = successMsg,
-                    )
+                    form =
+                        form.copy(
+                            isBootstrapping = false,
+                            testSucceeded = true,
+                            testMessage = successMsg,
+                        )
                     onSaveConnection(form)
                     onConnected()
                 },
                 onFailure = { error ->
-                    form = form.copy(
-                        isBootstrapping = false,
-                        testSucceeded = false,
-                        testMessage = error.message ?: "Error configurando VPS",
-                    )
+                    form =
+                        form.copy(
+                            isBootstrapping = false,
+                            testSucceeded = false,
+                            testMessage = error.message ?: "Error configurando VPS",
+                        )
                 },
             )
         }
@@ -259,8 +263,8 @@ fun RemoteConnectionScreen(
         ) {
             TabRow(
                 selectedTabIndex = if (form.mode == ConnectionMode.VPS_SSH) 0 else 1,
+                modifier = Modifier.clip(RoundedCornerShape(12.dp)),
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-                shape = RoundedCornerShape(12.dp),
             ) {
                 Tab(
                     selected = form.mode == ConnectionMode.VPS_SSH,
@@ -343,7 +347,7 @@ fun RemoteConnectionScreen(
                 form =
                     form.copy(
                         name = form.name.ifBlank { server.name },
-                        baseUrl = server.url,
+                        baseUrl = server.baseUrl,
                         testSucceeded = false,
                         testMessage = null,
                     )
@@ -704,7 +708,7 @@ private fun DiscoveryDialog(
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(server.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                             Text(
-                                server.url,
+                                server.baseUrl,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 maxLines = 1,

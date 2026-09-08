@@ -37,11 +37,12 @@ data class ConnectionFormState(
         get() = parsedUrl?.toString()
 
     val canSave: Boolean
-        get() = if (mode == ConnectionMode.VPS_SSH && sshHost.isNotBlank()) {
-            name.isNotBlank()
-        } else {
-            name.isNotBlank() && parsedUrl != null
-        }
+        get() =
+            if (mode == ConnectionMode.VPS_SSH && sshHost.isNotBlank()) {
+                name.isNotBlank()
+            } else {
+                name.isNotBlank() && parsedUrl != null
+            }
 
     fun toProfile(): ConnectionProfile {
         return if (mode == ConnectionMode.VPS_SSH && sshHost.isNotBlank()) {

@@ -71,7 +71,7 @@ class VpsSshManager {
                     val port = profile.remotePort.takeIf { it > 0 } ?: 4099
                     channel.setCommand("bash -s -- $port setup")
                     channel.setInputStream(ByteArrayInputStream(bootstrapScript.toByteArray(Charsets.UTF_8)))
-                    
+
                     val stdoutStream = channel.inputStream
                     val stderrStream = channel.errStream
                     channel.connect(15_000)

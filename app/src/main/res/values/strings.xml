@@ -534,6 +534,7 @@
     <string name="vps_setting_up">Setting up VPS...</string>
     <string name="vps_view_logs">Show installation details</string>
     <string name="vps_hide_logs">Hide installation details</string>
+    <string name="close">Close</string>
 
     <!-- Redesign: settings V2 -->
     <string name="section_assistant_settings">Assistant settings</string>

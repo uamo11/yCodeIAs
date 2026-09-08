@@ -524,6 +524,7 @@
     <string name="vps_setting_up">Configurando VPS...</string>
     <string name="vps_view_logs">Ver detalles de instalación</string>
     <string name="vps_hide_logs">Ocultar detalles de instalación</string>
+    <string name="close">Cerrar</string>
 
     <string name="section_assistant_settings">Ajustes del asistente</string>
     <string name="section_system_settings">Ajustes del sistema</string>
