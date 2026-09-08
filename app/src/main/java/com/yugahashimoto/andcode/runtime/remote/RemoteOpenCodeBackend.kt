@@ -48,6 +48,12 @@ class RemoteOpenCodeBackend(
                 },
         ),
 ) : OpenCodeBackend {
+    constructor(profile: ConnectionProfile, client: OpenCodeApiClient) : this(
+        profile = profile,
+        sshManager = null,
+        client = client,
+    )
+
     override val id: String = profile.id
     override val displayName: String = profile.name
     override val kind: BackendKind = BackendKind.REMOTE

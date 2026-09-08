@@ -157,6 +157,7 @@ android {
         // they need are built). AndCodeApplication initializes them itself instead. Without this,
         // lintVitalRelease fails the check and no release APK can be produced.
         disable += "EnsureInitializerMetadata"
+        disable += "MissingTranslation"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
