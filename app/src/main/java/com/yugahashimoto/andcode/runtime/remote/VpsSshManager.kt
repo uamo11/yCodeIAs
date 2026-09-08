@@ -98,15 +98,16 @@ class VpsSshManager {
                         val jsonStr = resultText.substring(jsonStart + "__YCODE_RESULT_START__".length, jsonEnd).trim()
                         val json = JSONObject(jsonStr)
                         if (json.optString("status") == "ok") {
-                            val result = VpsBootstrapResult(
-                                status = "ok",
-                                port = json.optInt("port", port),
-                                version = json.optString("version", "unknown"),
-                                distro = json.optString("distro", "Linux"),
-                                arch = json.optString("arch", "unknown"),
-                                hasSystemd = json.optBoolean("has_systemd", false),
-                                binary = json.optString("binary", ""),
-                            )
+                            val result =
+                                VpsBootstrapResult(
+                                    status = "ok",
+                                    port = json.optInt("port", port),
+                                    version = json.optString("version", "unknown"),
+                                    distro = json.optString("distro", "Linux"),
+                                    arch = json.optString("arch", "unknown"),
+                                    hasSystemd = json.optBoolean("has_systemd", false),
+                                    binary = json.optString("binary", ""),
+                                )
                             onProgress("✅ ¡OpenCode v${result.version} listo en ${result.distro} (${result.arch})!")
                             return@runCatching result
                         } else {
@@ -200,10 +201,11 @@ class VpsSshManager {
             session.setPassword(pwd)
         }
 
-        val config = Properties().apply {
-            put("StrictHostKeyChecking", "no")
-            put("UserKnownHostsFile", "/dev/null")
-        }
+        val config =
+            Properties().apply {
+                put("StrictHostKeyChecking", "no")
+                put("UserKnownHostsFile", "/dev/null")
+            }
         session.setConfig(config)
         session.setServerAliveInterval(15_000)
         session.setServerAliveCountMax(3)
