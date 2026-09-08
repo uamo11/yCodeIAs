@@ -126,17 +126,18 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.1-preview
-          name: "yCode v1.0.1 Preview (Responsiveness & Runtime Fixes)"
+          tag_name: v1.0.2-preview
+          name: "yCode v1.0.2 Preview (Universal VPS & SSH Tunnel Support)"
           body: |
-            ## yCode v1.0.1 Preview - Actualización de Reactividad y Estabilidad
-            
+            ## yCode v1.0.2 Preview - Soporte Universal para Cualquier Servidor / VPS
+
             ### Mejoras Implementadas:
-            - **Corrección de Reactividad en Chat**: La app ya no silencia el primer mensaje. Muestra estado de carga ("Conectando al entorno local...") y señales de vida inmediatas.
-            - **Arranque Automático del Entorno Local**: Si el runtime local está detenido (`Stopped`), se inicia automáticamente al abrir o al enviar un mensaje.
-            - **Bucle de Reconexión Robusto**: Continúa comprobando el servidor hasta que está 100% listo (`healthy == true`) y vacía la cola offline automáticamente.
-            - **Indicadores Visuales en Tiempo Real**: Banner visual en la parte superior informando del estado de conexión y de mensajes en cola.
-            - **Mensaje Explicativo Si Falta Proveedor**: Si no hay una API Key configurada (o modelo vacío), guía al usuario hacia Ajustes > Proveedores.
+            - **Compatibilidad Universal con VPS**: Soporte para Ubuntu, Debian, Alpine (musl), CentOS/RHEL/Rocky/Alma, Arch, openSUSE y cualquier distro Linux moderna o antigua.
+            - **Detección Automática de Arquitectura**: Autodetección de x86_64 (con soporte para procesadores antiguos sin AVX2), ARM64 (aarch64) y variantes musl libc.
+            - **Configuración en 1 Solo Clic**: El usuario solo introduce sus credenciales SSH (Host, Puerto, Usuario, Contraseña o Llave privada) y la app detecta el entorno, instala OpenCode y configura el servicio automáticamente.
+            - **Túnel SSH Encriptado Seguro (Port Forwarding)**: Conexión mediante túnel SSH local (`127.0.0.1:<puerto> -> VPS:127.0.0.1:4099`), garantizando funcionamiento incluso si la VPS está detrás de firewall NAT sin puertos públicos abiertos.
+            - **Visor de Logs en Tiempo Real**: Registro detallado paso a paso visible en la interfaz para monitorear cada fase de la instalación.
+            - **Análisis Estático y Lint Verificados**: 100% de tests y formato limpios con Spotless y Detekt.
           files: app/build/outputs/apk/debug/app-debug.apk
           prerelease: true
         env:
