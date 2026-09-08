@@ -18,6 +18,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -160,7 +161,12 @@ internal fun ConnectionDialog(
                                         form.copy(
                                             isTesting = false,
                                             testSucceeded = health.healthy,
-                                            testMessage = context.getString(R.string.connection_test_success, health.version),
+                                            testMessage =
+                                                if (health.healthy) {
+                                                    context.getString(R.string.connection_test_success, health.version)
+                                                } else {
+                                                    health.version.ifBlank { context.getString(R.string.remote_connection_unhealthy) }
+                                                },
                                         )
                                 },
                                 onFailure = { error ->
@@ -188,10 +194,20 @@ internal fun ConnectionDialog(
                     Spacer(Modifier.padding(horizontal = 4.dp))
                     Text(form.testMessage ?: stringResource(R.string.test_connection))
                 }
+                if (form.mode == ConnectionMode.VPS_SSH && !form.testSucceeded) {
+                    Text(
+                        text = stringResource(R.string.vps_test_required_before_save),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         },
         confirmButton = {
-            Button(onClick = { onSave(form) }, enabled = form.canSave && !form.isTesting) {
+            Button(
+                onClick = { onSave(form) },
+                enabled = form.canSave && !form.isTesting && (form.mode != ConnectionMode.VPS_SSH || form.testSucceeded),
+            ) {
                 Text(stringResource(R.string.save))
             }
         },

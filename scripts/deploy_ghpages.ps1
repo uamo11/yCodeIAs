@@ -1,6 +1,6 @@
 $repoRoot = "C:\Users\Usuario\Documents\ANDROID\yCodeIAs"
 $pagesDir = Join-Path $repoRoot "pages"
-$targetRepo = "https://github.com/xxnonxxp11/yCodeIAs.git"
+$targetRepo = "https://github.com/uamo11/yCodeIAs.git"
 
 $tempDir = Join-Path $env:TEMP ("ghpages_" + [System.Guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
@@ -23,3 +23,4 @@ finally {
     Pop-Location
     Remove-Item -Recurse -Force $tempDir -ErrorAction SilentlyContinue
 }
+

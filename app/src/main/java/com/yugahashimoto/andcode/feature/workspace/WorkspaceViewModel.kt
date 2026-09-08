@@ -27,12 +27,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+
+data class VpsSetupProgress(
+    val isBootstrapping: Boolean = false,
+    val progress: String? = null,
+    val logs: List<String> = emptyList(),
+    val result: VpsBootstrapResult? = null,
+    val error: String? = null,
+    val formState: ConnectionFormState? = null,
+)
 
 data class RuntimeSummary(
     val id: String,
@@ -330,6 +340,9 @@ class WorkspaceViewModel(
         registry.deleteRemote(id)
     }
 
+    private val _vpsSetup = MutableStateFlow(VpsSetupProgress())
+    val vpsSetup: StateFlow<VpsSetupProgress> = _vpsSetup.asStateFlow()
+
     suspend fun testConnection(form: ConnectionFormState): Result<OpenCodeHealth> {
         if (!form.canSave) {
             return Result.failure(IllegalArgumentException(incompleteConnectionMessage))
@@ -349,7 +362,10 @@ class WorkspaceViewModel(
                     )
                 testClient.health()
             }.recover {
-                OpenCodeHealth(healthy = true, version = "SSH OK (OpenCode no iniciado)")
+                OpenCodeHealth(
+                    healthy = false,
+                    version = "SSH conectado, pero OpenCode no responde en el puerto ${profile.remotePort}. Debes pulsar 'Configurar y Conectar VPS'.",
+                )
             }
         }
         return runCatching { OpenCodeApiClient(profile).health() }
@@ -362,6 +378,64 @@ class WorkspaceViewModel(
     ): Result<VpsBootstrapResult> {
         val profile = form.toProfile()
         return vpsSshManager.setupVps(profile, bootstrapScript, onProgress)
+    }
+
+    fun startVpsSetup(
+        form: ConnectionFormState,
+        bootstrapScript: String,
+        onSuccess: (VpsBootstrapResult) -> Unit = {},
+    ) {
+        if (_vpsSetup.value.isBootstrapping) return
+        viewModelScope.launch {
+            _vpsSetup.value =
+                VpsSetupProgress(
+                    isBootstrapping = true,
+                    progress = "Conectando al servidor VPS por SSH...",
+                    logs = listOf("🚀 Conectando al servidor VPS por SSH..."),
+                    formState = form,
+                )
+            val profile = form.toProfile()
+            val res =
+                vpsSshManager.setupVps(
+                    profile = profile,
+                    bootstrapScript = bootstrapScript,
+                    onProgress = { line ->
+                        _vpsSetup.update { current ->
+                            current.copy(
+                                progress = line,
+                                logs = current.logs + line,
+                            )
+                        }
+                    },
+                )
+            res.fold(
+                onSuccess = { bootstrapResult ->
+                    _vpsSetup.update {
+                        it.copy(
+                            isBootstrapping = false,
+                            result = bootstrapResult,
+                            progress = "OpenCode v${bootstrapResult.version} listo en ${bootstrapResult.distro}",
+                        )
+                    }
+                    saveConnection(form, activate = true)
+                    onSuccess(bootstrapResult)
+                },
+                onFailure = { err ->
+                    val msg = err.message ?: "Error al configurar VPS"
+                    _vpsSetup.update {
+                        it.copy(
+                            isBootstrapping = false,
+                            error = msg,
+                            progress = msg,
+                        )
+                    }
+                },
+            )
+        }
+    }
+
+    fun resetVpsSetup() {
+        _vpsSetup.value = VpsSetupProgress()
     }
 
     /** [agents] is the setup guide's selection; every other caller means OpenCode alone. */

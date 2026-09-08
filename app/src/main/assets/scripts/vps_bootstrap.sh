@@ -6,6 +6,7 @@
 # Inits: systemd, openrc, background supervisor
 # ==============================================================================
 set -e
+exec 2>&1
 
 PORT=${1:-4099}
 ACTION=${2:-"setup"} # setup, status, start, stop, restart
@@ -88,17 +89,17 @@ ensure_package() {
     fi
     log "Installing missing dependency: $PKG..."
     if command -v apt-get >/dev/null 2>&1; then
-        DEBIAN_FRONTEND=noninteractive apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "$PKG"
+        (DEBIAN_FRONTEND=noninteractive apt-get update -qq || true) && (DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "$PKG" || true)
     elif command -v apk >/dev/null 2>&1; then
-        apk add --no-cache "$PKG"
+        apk add --no-cache "$PKG" || true
     elif command -v dnf >/dev/null 2>&1; then
-        dnf install -y -q "$PKG"
+        dnf install -y -q "$PKG" || true
     elif command -v yum >/dev/null 2>&1; then
-        yum install -y -q "$PKG"
+        yum install -y -q "$PKG" || true
     elif command -v pacman >/dev/null 2>&1; then
-        pacman -Sy --noconfirm "$PKG"
+        pacman -Sy --noconfirm "$PKG" || true
     elif command -v zypper >/dev/null 2>&1; then
-        zypper --non-interactive install "$PKG"
+        zypper --non-interactive install "$PKG" || true
     else
         log "Warning: Cannot auto-install $PKG (unknown package manager)"
     fi
@@ -126,9 +127,11 @@ fi
 if [ "$(id -u)" -eq 0 ]; then
     BIN_DIR="/usr/local/bin"
     OPT_DIR="/opt/opencode"
+    USER_HOME="${HOME:-/root}"
 else
     BIN_DIR="$HOME/.local/bin"
     OPT_DIR="$HOME/.opencode"
+    USER_HOME="$HOME"
 fi
 mkdir -p "$BIN_DIR" "$OPT_DIR"
 
@@ -170,15 +173,37 @@ fi
 
 # 9. Service Management (systemd or nohup daemon)
 HAS_SYSTEMD=false
-if command -v systemctl >/dev/null 2>&1 && systemctl status >/dev/null 2>&1; then
+if [ -d /run/systemd/system ] && command -v systemctl >/dev/null 2>&1 && systemctl list-units >/dev/null 2>&1; then
     HAS_SYSTEMD=true
 fi
 
 PID_FILE="$OPT_DIR/opencode.pid"
 LOG_FILE="$OPT_DIR/opencode.log"
 
+stop_daemon() {
+    log "Stopping any previous OpenCode instances..."
+    if [ "$HAS_SYSTEMD" = "true" ] && [ "$(id -u)" -eq 0 ]; then
+        systemctl stop opencode 2>/dev/null || true
+    fi
+    if [ -f "$PID_FILE" ]; then
+        OLD_PID=$(cat "$PID_FILE" 2>/dev/null || true)
+        if [ -n "$OLD_PID" ]; then
+            kill -9 "$OLD_PID" 2>/dev/null || true
+        fi
+        rm -f "$PID_FILE"
+    fi
+    pkill -9 -f "$OPENCODE_BIN serve" 2>/dev/null || true
+    pkill -9 -f "opencode serve" 2>/dev/null || true
+    if command -v fuser >/dev/null 2>&1; then
+        fuser -k -9 "$PORT/tcp" 2>/dev/null || true
+    fi
+    sleep 1
+}
+
 start_daemon() {
+    stop_daemon
     log "Starting OpenCode service on port $PORT..."
+    STARTED_WITH_SYSTEMD=false
     if [ "$HAS_SYSTEMD" = "true" ] && [ "$(id -u)" -eq 0 ]; then
         SERVICE_FILE="/etc/systemd/system/opencode.service"
         cat <<EOF > "$SERVICE_FILE"
@@ -191,26 +216,31 @@ Type=simple
 ExecStart=$OPENCODE_BIN serve --port $PORT --hostname 127.0.0.1
 Restart=always
 RestartSec=3
-WorkingDirectory=$HOME
-Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$HOME/.local/bin
+WorkingDirectory=$USER_HOME
+Environment=HOME=$USER_HOME
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$USER_HOME/.local/bin
+StandardOutput=append:$LOG_FILE
+StandardError=append:$LOG_FILE
 
 [Install]
 WantedBy=multi-user.target
 EOF
-        systemctl daemon-reload
+        systemctl daemon-reload || true
         systemctl enable opencode >/dev/null 2>&1 || true
-        systemctl restart opencode
-    else
-        # Stop previous instance if running
-        if [ -f "$PID_FILE" ]; then
-            OLD_PID=$(cat "$PID_FILE")
-            kill -9 "$OLD_PID" 2>/dev/null || true
-            rm -f "$PID_FILE"
+        if systemctl restart opencode 2>/dev/null; then
+            STARTED_WITH_SYSTEMD=true
+            log "OpenCode service started via systemd."
+        else
+            log "Warning: systemctl restart failed. Falling back to background process..."
         fi
-        pkill -f "$OPENCODE_BIN serve" 2>/dev/null || true
-        sleep 1
-        nohup "$OPENCODE_BIN" serve --port "$PORT" --hostname 127.0.0.1 > "$LOG_FILE" 2>&1 &
+    fi
+
+    if [ "$STARTED_WITH_SYSTEMD" != "true" ]; then
+        # Run in background completely detached from SSH session stdio
+        nohup "$OPENCODE_BIN" serve --port "$PORT" --hostname 127.0.0.1 < /dev/null >> "$LOG_FILE" 2>&1 &
         echo $! > "$PID_FILE"
+        disown -a 2>/dev/null || true
+        log "OpenCode process started in background."
     fi
 }
 
@@ -219,18 +249,32 @@ start_daemon
 # 10. Verify Health
 log "Verifying OpenCode health on 127.0.0.1:$PORT..."
 HEALTHY=false
-for i in $(seq 1 15); do
+for i in $(seq 1 25); do
     sleep 1
+    HEALTH_RES=""
+    HTTP_CODE=""
     if command -v curl >/dev/null 2>&1; then
-        HEALTH_RES=$(curl -s http://127.0.0.1:$PORT/global/health || true)
+        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 2 --max-time 3 "http://127.0.0.1:$PORT/global/health" 2>/dev/null || true)
+        if [ "$HTTP_CODE" = "200" ]; then
+            HEALTHY=true
+            break
+        fi
+        HEALTH_RES=$(curl -s --connect-timeout 2 --max-time 3 "http://127.0.0.1:$PORT/global/health" 2>/dev/null || true)
+        if [ -z "$HEALTH_RES" ]; then
+            HEALTH_RES=$(curl -s --connect-timeout 2 --max-time 3 "http://127.0.0.1:$PORT/health" 2>/dev/null || true)
+        fi
     elif command -v wget >/dev/null 2>&1; then
-        HEALTH_RES=$(wget -qO- http://127.0.0.1:$PORT/global/health || true)
-    else
-        HEALTH_RES=""
+        HEALTH_RES=$(wget -qO- -T 3 "http://127.0.0.1:$PORT/global/health" 2>/dev/null || true)
+        if [ -z "$HEALTH_RES" ]; then
+            HEALTH_RES=$(wget -qO- -T 3 "http://127.0.0.1:$PORT/health" 2>/dev/null || true)
+        fi
     fi
-    if echo "$HEALTH_RES" | grep -q '"healthy":true'; then
+    if echo "$HEALTH_RES" | grep -Eqi '"healthy"[[:space:]]*:[[:space:]]*true|"status"[[:space:]]*:[[:space:]]*"ok"|"version"'; then
         HEALTHY=true
         break
+    fi
+    if [ $((i % 2)) -eq 0 ] || [ "$i" -eq 1 ]; then
+        log "Waiting for OpenCode on 127.0.0.1:$PORT (attempt $i/25)..."
     fi
 done
 
@@ -251,14 +295,22 @@ __YCODE_RESULT_START__
 }
 __YCODE_RESULT_END__
 JSON
+    exit 0
 else
-    log "ERROR: OpenCode failed to respond on port $PORT"
-    cat "$LOG_FILE" 2>/dev/null | tail -n 20 || journalctl -u opencode -n 20 --no-pager 2>/dev/null || true
+    log "ERROR: OpenCode failed to respond on port $PORT after health check attempts"
+    if [ -f "$LOG_FILE" ]; then
+        log "--- OpenCode Log ($LOG_FILE) ---"
+        tail -n 25 "$LOG_FILE" 2>/dev/null || true
+    fi
+    if [ "$HAS_SYSTEMD" = "true" ] && command -v journalctl >/dev/null 2>&1; then
+        log "--- systemd Log (opencode.service) ---"
+        journalctl -u opencode -n 25 --no-pager 2>/dev/null || true
+    fi
     cat <<JSON
 __YCODE_RESULT_START__
 {
   "status": "error",
-  "message": "Health check timed out on port $PORT"
+  "message": "Health check timed out on port $PORT. OpenCode no respondió correctamente."
 }
 __YCODE_RESULT_END__
 JSON

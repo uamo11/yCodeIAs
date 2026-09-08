@@ -96,8 +96,12 @@ fun RemoteConnectionScreen(
     onBack: () -> Unit,
     onConnected: () -> Unit,
     onSetupVps: (suspend (ConnectionFormState, (String) -> Unit) -> Result<VpsBootstrapResult>)? = null,
+    vpsSetupProgress: VpsSetupProgress? = null,
+    onStartVpsSetup: ((ConnectionFormState) -> Unit)? = null,
+    onResetVpsSetup: (() -> Unit)? = null,
+    onNavigateToAndroidSetup: (() -> Unit)? = null,
 ) {
-    var form by remember { mutableStateOf(ConnectionFormState(mode = ConnectionMode.VPS_SSH)) }
+    var form by remember { mutableStateOf(vpsSetupProgress?.formState ?: ConnectionFormState(mode = ConnectionMode.VPS_SSH)) }
     var passwordVisible by remember { mutableStateOf(false) }
     var discoveryDialogOpen by remember { mutableStateOf(false) }
     var isDiscovering by remember { mutableStateOf(false) }
@@ -157,7 +161,7 @@ fun RemoteConnectionScreen(
                                 if (health.healthy) {
                                     health.version.takeIf { it.isNotBlank() }?.let { "Conectado: $it" } ?: "Conexión exitosa"
                                 } else {
-                                    context.getString(R.string.remote_connection_unhealthy)
+                                    health.version.ifBlank { context.getString(R.string.remote_connection_unhealthy) }
                                 },
                         )
                 },
@@ -173,7 +177,55 @@ fun RemoteConnectionScreen(
         }
     }
 
+    androidx.compose.runtime.LaunchedEffect(vpsSetupProgress) {
+        val progress = vpsSetupProgress ?: return@LaunchedEffect
+        if (progress.formState != null && form.sshHost.isBlank()) {
+            form = progress.formState
+        }
+        if (progress.isBootstrapping) {
+            form =
+                form.copy(
+                    isBootstrapping = true,
+                    bootstrapProgress = progress.progress ?: context.getString(R.string.vps_setting_up),
+                    bootstrapLogs = progress.logs,
+                    testMessage = null,
+                    testSucceeded = false,
+                )
+        } else if (progress.result != null) {
+            val result = progress.result
+            val successMsg = "OpenCode v${result.version} listo en ${result.distro} (${result.arch})"
+            form =
+                form.copy(
+                    isBootstrapping = false,
+                    testSucceeded = true,
+                    testMessage = successMsg,
+                    bootstrapLogs = progress.logs,
+                )
+            onConnected()
+        } else if (progress.error != null) {
+            form =
+                form.copy(
+                    isBootstrapping = false,
+                    testSucceeded = false,
+                    testMessage = progress.error,
+                    bootstrapLogs = progress.logs,
+                )
+        }
+    }
+
     fun startVpsSetup() {
+        if (onStartVpsSetup != null) {
+            form =
+                form.copy(
+                    isBootstrapping = true,
+                    bootstrapProgress = context.getString(R.string.vps_setting_up),
+                    bootstrapLogs = emptyList(),
+                    testMessage = null,
+                    testSucceeded = false,
+                )
+            onStartVpsSetup(form)
+            return
+        }
         if (onSetupVps == null) return
         scope.launch {
             form =
@@ -285,7 +337,13 @@ fun RemoteConnectionScreen(
                     form = form,
                     passwordVisible = passwordVisible,
                     onTogglePassword = { passwordVisible = !passwordVisible },
-                    onFormChange = { form = it },
+                    onFormChange = {
+                        if (vpsSetupProgress?.error != null) {
+                            onResetVpsSetup?.invoke()
+                        }
+                        form = it
+                    },
+                    onNavigateToAndroidSetup = onNavigateToAndroidSetup,
                 )
 
                 if (form.isBootstrapping || form.bootstrapLogs.isNotEmpty()) {
@@ -363,6 +421,7 @@ private fun VpsSshForm(
     passwordVisible: Boolean,
     onTogglePassword: () -> Unit,
     onFormChange: (ConnectionFormState) -> Unit,
+    onNavigateToAndroidSetup: (() -> Unit)? = null,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
@@ -370,6 +429,108 @@ private fun VpsSshForm(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+        ) {
+            Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Dns,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.vps_agent_info_title),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+
+                Text(
+                    text = stringResource(R.string.vps_select_agent_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    val agents = listOf(
+                        "opencode" to "OpenCode",
+                        "claude" to "Claude",
+                        "antigravity" to "Antigravity",
+                    )
+                    agents.forEach { (id, label) ->
+                        val isSelected = form.preferredAgent == id
+                        Surface(
+                            modifier =
+                                Modifier
+                                    .weight(1f)
+                                    .clickable {
+                                        val newName =
+                                            if (form.name.isBlank() || form.name.startsWith("VPS - ")) {
+                                                "VPS - $label"
+                                            } else {
+                                                form.name
+                                            }
+                                        onFormChange(form.copy(preferredAgent = id, name = newName, testSucceeded = false, testMessage = null))
+                                    },
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                            contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                            border =
+                                BorderStroke(
+                                    1.dp,
+                                    if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                                ),
+                        ) {
+                            Box(
+                                modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    maxLines = 1,
+                                )
+                            }
+                        }
+                    }
+                }
+
+                val selectedInfo =
+                    when (form.preferredAgent) {
+                        "claude" -> stringResource(R.string.vps_agent_selected_claude_info)
+                        "antigravity" -> stringResource(R.string.vps_agent_selected_antigravity_info)
+                        else -> stringResource(R.string.vps_agent_selected_opencode_info)
+                    }
+                Text(
+                    text = selectedInfo,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                if (onNavigateToAndroidSetup != null) {
+                    TextButton(
+                        onClick = onNavigateToAndroidSetup,
+                        modifier = Modifier.align(Alignment.End),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.vps_switch_to_android_setup),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                }
+            }
+        }
 
         OutlinedTextField(
             value = form.name,

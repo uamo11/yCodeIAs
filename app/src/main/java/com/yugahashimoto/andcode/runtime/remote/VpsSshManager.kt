@@ -65,70 +65,97 @@ class VpsSshManager {
                 session.connect(15_000)
 
                 try {
-                    onProgress("🚀 Ejecutando script de instalación y detección universal...")
-                    val channel = session.openChannel("exec") as ChannelExec
-                    // Pass script via stdin to avoid filesystem permissions issues
-                    val port = profile.remotePort.takeIf { it > 0 } ?: 4099
-                    channel.setCommand("bash -s -- $port setup")
-                    channel.setInputStream(ByteArrayInputStream(bootstrapScript.toByteArray(Charsets.UTF_8)))
+                    kotlinx.coroutines.withTimeout(240_000L) {
+                        onProgress("🚀 Ejecutando script de instalación y detección universal...")
+                        val channel = session.openChannel("exec") as ChannelExec
+                        val port = profile.remotePort.takeIf { it > 0 } ?: 4099
+                        // Combine stdout and stderr, pass script via stdin
+                        channel.setCommand("bash -s -- $port setup 2>&1")
+                        channel.setInputStream(ByteArrayInputStream(bootstrapScript.toByteArray(Charsets.UTF_8)))
+                        channel.setErrStream(System.err)
 
-                    val stdoutStream = channel.inputStream
-                    val stderrStream = channel.errStream
-                    channel.connect(15_000)
+                        val stdoutStream = channel.inputStream
+                        channel.connect(15_000)
 
-                    val reader = BufferedReader(InputStreamReader(stdoutStream, Charsets.UTF_8))
-                    val fullOutput = StringBuilder()
-                    var line: String?
-                    while (reader.readLine().also { line = it } != null) {
-                        val currentLine = line ?: break
-                        fullOutput.appendLine(currentLine)
-                        if (currentLine.startsWith("[ycode-vps]")) {
-                            onProgress(currentLine.removePrefix("[ycode-vps]").trim())
+                        val reader = BufferedReader(InputStreamReader(stdoutStream, Charsets.UTF_8))
+                        val fullOutput = StringBuilder()
+                        var line: String?
+                        var inResultJson = false
+                        while (reader.readLine().also { line = it } != null) {
+                            val currentLine = line ?: break
+                            fullOutput.appendLine(currentLine)
+                            if (currentLine.contains("__YCODE_RESULT_START__")) {
+                                inResultJson = true
+                                continue
+                            }
+                            if (currentLine.contains("__YCODE_RESULT_END__")) {
+                                inResultJson = false
+                                continue
+                            }
+                            if (inResultJson) continue
+
+                            val displayLine =
+                                if (currentLine.startsWith("[ycode-vps]")) {
+                                    currentLine.removePrefix("[ycode-vps]").trim()
+                                } else {
+                                    currentLine.trim()
+                                }
+                            if (displayLine.isNotBlank()) {
+                                onProgress(displayLine)
+                            }
                         }
-                    }
 
-                    val exitStatus = channel.exitStatus
-                    channel.disconnect()
-
-                    val resultText = fullOutput.toString()
-                    val jsonStart = resultText.indexOf("__YCODE_RESULT_START__")
-                    val jsonEnd = resultText.indexOf("__YCODE_RESULT_END__")
-
-                    if (jsonStart != -1 && jsonEnd != -1 && jsonEnd > jsonStart) {
-                        val jsonStr = resultText.substring(jsonStart + "__YCODE_RESULT_START__".length, jsonEnd).trim()
-                        val json = JSONObject(jsonStr)
-                        if (json.optString("status") == "ok") {
-                            val result =
-                                VpsBootstrapResult(
-                                    status = "ok",
-                                    port = json.optInt("port", port),
-                                    version = json.optString("version", "unknown"),
-                                    distro = json.optString("distro", "Linux"),
-                                    arch = json.optString("arch", "unknown"),
-                                    hasSystemd = json.optBoolean("has_systemd", false),
-                                    binary = json.optString("binary", ""),
-                                )
-                            onProgress("✅ ¡OpenCode v${result.version} listo en ${result.distro} (${result.arch})!")
-                            return@runCatching result
-                        } else {
-                            val msg = json.optString("message", "Error desconocido durante la instalación")
-                            error(msg)
+                        val deadline = System.currentTimeMillis() + 3_000
+                        while (!channel.isClosed && System.currentTimeMillis() < deadline) {
+                            kotlinx.coroutines.delay(50)
                         }
-                    }
+                        val exitStatus = channel.exitStatus
+                        channel.disconnect()
 
-                    if (exitStatus != 0) {
-                        error("El instalador terminó con código $exitStatus")
-                    }
+                        val resultText = fullOutput.toString()
+                        val jsonStart = resultText.indexOf("__YCODE_RESULT_START__")
+                        val jsonEnd = resultText.indexOf("__YCODE_RESULT_END__")
 
-                    VpsBootstrapResult(
-                        status = "ok",
-                        port = port,
-                        version = "unknown",
-                        distro = "Linux",
-                        arch = "unknown",
-                        hasSystemd = false,
-                        binary = "opencode",
-                    )
+                        if (jsonStart != -1 && jsonEnd != -1 && jsonEnd > jsonStart) {
+                            val jsonStr = resultText.substring(jsonStart + "__YCODE_RESULT_START__".length, jsonEnd).trim()
+                            val json = JSONObject(jsonStr)
+                            if (json.optString("status") == "ok") {
+                                val result =
+                                    VpsBootstrapResult(
+                                        status = "ok",
+                                        port = json.optInt("port", port),
+                                        version = json.optString("version", "unknown"),
+                                        distro = json.optString("distro", "Linux"),
+                                        arch = json.optString("arch", "unknown"),
+                                        hasSystemd = json.optBoolean("has_systemd", false),
+                                        binary = json.optString("binary", ""),
+                                    )
+                                onProgress("✅ ¡OpenCode v${result.version} listo en ${result.distro} (${result.arch})!")
+                                return@withTimeout result
+                            } else {
+                                val msg = json.optString("message", "Error durante la instalación")
+                                error(msg)
+                            }
+                        }
+
+                        if (exitStatus != 0) {
+                            val lastLines = fullOutput.lines().filter { it.isNotBlank() }.takeLast(8).joinToString("\n")
+                            val errorDetail = if (lastLines.isNotBlank()) ":\n$lastLines" else ""
+                            error("El instalador terminó con código $exitStatus$errorDetail")
+                        }
+
+                        VpsBootstrapResult(
+                            status = "ok",
+                            port = port,
+                            version = "unknown",
+                            distro = "Linux",
+                            arch = "unknown",
+                            hasSystemd = false,
+                            binary = "opencode",
+                        )
+                    }
+                } catch (timeout: kotlinx.coroutines.TimeoutCancellationException) {
+                    throw IllegalStateException("El proceso de instalación en el VPS superó el tiempo límite (4 minutos). Verifica la conexión a Internet de tu servidor.", timeout)
                 } finally {
                     session.disconnect()
                 }

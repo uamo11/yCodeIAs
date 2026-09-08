@@ -29,6 +29,7 @@ data class ConnectionFormState(
     val isBootstrapping: Boolean = false,
     val bootstrapProgress: String? = null,
     val bootstrapLogs: List<String> = emptyList(),
+    val preferredAgent: String = "opencode",
 ) {
     private val parsedUrl
         get() = OpenCodeUrl.normalize(baseUrl).getOrNull()

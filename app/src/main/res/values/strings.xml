@@ -541,6 +541,15 @@
     <string name="vps_setting_up">Setting up VPS...</string>
     <string name="vps_view_logs">Show installation details</string>
     <string name="vps_hide_logs">Hide installation details</string>
+    <string name="vps_test_required_before_save">Test and verify OpenCode before saving.</string>
+    <string name="vps_agent_info_title">Remote Engine &amp; Agent Compatibility</string>
+    <string name="vps_select_agent_desc">Select which agent or model provider you plan to use on this server:</string>
+    <string name="vps_agent_selected_opencode_info">OpenCode runs as the remote server on your VPS, executing terminal commands, file edits, and tools.</string>
+    <string name="vps_agent_selected_claude_info">Connects to Claude (Anthropic models) via the VPS OpenCode server. Configure your Anthropic API Key in Settings &gt; AI Providers.</string>
+    <string name="vps_agent_selected_antigravity_info">Connects to Google Antigravity / Gemini models via the VPS OpenCode server. Configure your Google API Key in Settings &gt; AI Providers.</string>
+    <string name="vps_agent_opencode_engine">The VPS runs OpenCode Server as the remote execution backend for tools, sessions, and commands.</string>
+    <string name="vps_agent_claude_antigravity_note">You can use Claude (Anthropic), Gemini (Google), and OpenAI models through this VPS connection by configuring your API key in Settings &gt; Providers. Standalone local Claude Code and Antigravity CLI tools run on-device under \'Set up this Android\'.</string>
+    <string name="vps_switch_to_android_setup">Want on-device local agents instead? Set up this Android</string>
     <string name="close">Close</string>
 
     <!-- Redesign: settings V2 -->

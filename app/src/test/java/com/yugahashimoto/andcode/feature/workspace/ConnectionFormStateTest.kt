@@ -86,4 +86,30 @@ class ConnectionFormStateTest {
         assertEquals(4099, profile.remotePort)
         assertEquals("http://127.0.0.1:4099", profile.baseUrl)
     }
+
+    @Test
+    fun `vps ssh form testSucceeded defaults to false for new connection`() {
+        val form =
+            ConnectionFormState(
+                mode = ConnectionMode.VPS_SSH,
+                name = "Test VPS",
+                sshHost = "198.51.100.1",
+            )
+        assertFalse(form.testSucceeded)
+        assertEquals("opencode", form.preferredAgent)
+    }
+
+    @Test
+    fun `vps ssh form supports selecting preferred agent`() {
+        val form =
+            ConnectionFormState(
+                mode = ConnectionMode.VPS_SSH,
+                name = "VPS - Claude",
+                sshHost = "198.51.100.1",
+                preferredAgent = "claude",
+            )
+        assertEquals("claude", form.preferredAgent)
+        val antigravityForm = form.copy(preferredAgent = "antigravity", name = "VPS - Antigravity")
+        assertEquals("antigravity", antigravityForm.preferredAgent)
+    }
 }
