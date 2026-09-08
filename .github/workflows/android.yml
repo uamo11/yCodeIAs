@@ -126,17 +126,17 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.3-preview
-          name: "yCode v1.0.3 Preview (Visible VPS Entry Points & Quick-Connect)"
+          tag_name: v1.0.4-preview
+          name: "yCode v1.0.4 Preview (New Official Branding & Enhanced UI)"
           body: |
-            ## yCode v1.0.3 Preview - Accesos Visibles a VPS y Conexión en 1 Clic
+            ## yCode v1.0.4 Preview - Nuevo Logo Oficial y Accesos a VPS
 
             ### Novedades en esta versión:
+            - **Nuevo Logo e Identidad Visual**: Icono oficial renovado para la app Android, favicon web y recursos del repositorio.
             - **Visibilidad Inmediata en Bienvenida (Onboarding)**: Opción prominente "Servidor VPS / Cloud (SSH)" con badge "Rápido y Potente" desde el primer inicio de la app.
-            - **Acceso Directo en el Menú Lateral (Drawer)**: Nuevo botón de destino "VPS / Servidor Remoto (SSH)" con icono de servidor accesible desde cualquier chat.
+            - **Acceso Directo en el Menú Lateral (Drawer)**: Acceso directo a "VPS / Servidor Remoto (SSH)" con icono de servidor accesible desde cualquier chat.
             - **Botón Destacado en Espacios de Trabajo (Workspaces)**: Botón principal "Conectar Servidor VPS (SSH)" colocado en la parte superior.
             - **Acceso Directo en Chat**: Si el entorno local no está configurado, el usuario ve el botón directo para conectar su VPS.
-            - **Auto-Relleno Rápido de VPS de Prueba**: Botón "Cargar VPS de prueba (85.192.20.22)" en el formulario SSH para probar al instante sin teclear la contraseña en el móvil.
             - **Túnel SSH Encriptado Seguro**: Conexión protegida vía Port Forwarding (`127.0.0.1:<puerto> -> VPS:127.0.0.1:4099`) con autoinstalación en Ubuntu, Debian, Alpine, ARM64/x64.
           files: app/build/outputs/apk/debug/app-debug.apk
           prerelease: true

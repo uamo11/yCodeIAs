@@ -482,7 +482,6 @@
     <string name="nav_vps_connection">VPS / Servidor Remoto (SSH)</string>
     <string name="connect_vps_ssh_button">Conectar Servidor VPS (SSH)</string>
     <string name="remote_connection_vps_hint">VPS (SSH) y PC</string>
-    <string name="use_test_vps_action">Cargar VPS de prueba (85.192.20.22)</string>
 
     <string name="android_setup_title">Configurar este Android</string>
     <string name="setup_step_download">Descargar entorno de ejecución</string>

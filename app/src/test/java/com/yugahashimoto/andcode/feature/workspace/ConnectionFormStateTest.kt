@@ -68,8 +68,8 @@ class ConnectionFormStateTest {
             ConnectionFormState(
                 mode = ConnectionMode.VPS_SSH,
                 name = "Test VPS",
-                sshHost = "85.192.20.22",
-                sshPort = "9714",
+                sshHost = "198.51.100.1",
+                sshPort = "2222",
                 sshUser = "root",
                 sshPassword = "password123",
                 remotePort = "4099",
@@ -79,8 +79,8 @@ class ConnectionFormStateTest {
         val profile = form.toProfile()
         assertTrue(profile.isSsh)
         assertEquals("Test VPS", profile.name)
-        assertEquals("85.192.20.22", profile.sshHost)
-        assertEquals(9714, profile.sshPort)
+        assertEquals("198.51.100.1", profile.sshHost)
+        assertEquals(2222, profile.sshPort)
         assertEquals("root", profile.sshUser)
         assertEquals("password123", profile.sshPassword)
         assertEquals(4099, profile.remotePort)

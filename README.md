@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="brand/andcode_icon_master_1024.png" width="128" height="128" alt="yCode Logo" />
+</p>
+
 # yCode
 
 <p align="center">

@@ -490,7 +490,6 @@
     <string name="nav_vps_connection">VPS / Remote Server (SSH)</string>
     <string name="connect_vps_ssh_button">Connect VPS Server (SSH)</string>
     <string name="remote_connection_vps_hint">VPS (SSH) &amp; PC</string>
-    <string name="use_test_vps_action">Load test VPS (85.192.20.22)</string>
 
     <!-- Redesign: Android local setup -->
     <string name="android_setup_title">Set up this Android</string>

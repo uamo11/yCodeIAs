@@ -79,7 +79,7 @@ internal fun ConnectionDialog(
                         value = form.sshHost,
                         onValueChange = { form = form.copy(sshHost = it, testSucceeded = false, testMessage = null) },
                         label = { Text(stringResource(R.string.vps_ssh_host)) },
-                        placeholder = { Text("85.192.20.22") },
+                        placeholder = { Text("192.168.1.100") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
