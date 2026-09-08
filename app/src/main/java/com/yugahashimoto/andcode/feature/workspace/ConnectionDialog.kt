@@ -74,39 +74,78 @@ internal fun ConnectionDialog(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
-                OutlinedTextField(
-                    value = form.baseUrl,
-                    onValueChange = { form = form.copy(baseUrl = it, testSucceeded = false, testMessage = null) },
-                    label = { Text(stringResource(R.string.server_url)) },
-                    leadingIcon = { Icon(Icons.Default.Link, contentDescription = stringResource(R.string.cd_server_url)) },
-                    placeholder = { Text("192.168.1.10:4096") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    isError = form.baseUrl.isNotBlank() && form.normalizedUrl == null,
-                    supportingText =
-                        if (form.baseUrl.isNotBlank() && form.normalizedUrl == null) {
-                            { Text(stringResource(R.string.remote_url_invalid)) }
-                        } else {
-                            null
-                        },
-                )
-                OutlinedTextField(
-                    value = form.username,
-                    onValueChange = { form = form.copy(username = it) },
-                    label = { Text(stringResource(R.string.username)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                )
-                OutlinedTextField(
-                    value = form.password,
-                    onValueChange = { form = form.copy(password = it, testSucceeded = false, testMessage = null) },
-                    label = { Text(stringResource(R.string.password)) },
-                    leadingIcon = { Icon(Icons.Default.Key, contentDescription = stringResource(R.string.cd_password)) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                )
+                if (form.mode == ConnectionMode.VPS_SSH) {
+                    OutlinedTextField(
+                        value = form.sshHost,
+                        onValueChange = { form = form.copy(sshHost = it, testSucceeded = false, testMessage = null) },
+                        label = { Text(stringResource(R.string.vps_ssh_host)) },
+                        placeholder = { Text("85.192.20.22") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        OutlinedTextField(
+                            value = form.sshPort,
+                            onValueChange = { form = form.copy(sshPort = it, testSucceeded = false, testMessage = null) },
+                            label = { Text(stringResource(R.string.vps_ssh_port)) },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                        )
+                        OutlinedTextField(
+                            value = form.sshUser,
+                            onValueChange = { form = form.copy(sshUser = it, testSucceeded = false, testMessage = null) },
+                            label = { Text(stringResource(R.string.vps_ssh_user)) },
+                            modifier = Modifier.weight(1.5f),
+                            singleLine = true,
+                        )
+                    }
+                    OutlinedTextField(
+                        value = form.sshPassword,
+                        onValueChange = { form = form.copy(sshPassword = it, testSucceeded = false, testMessage = null) },
+                        label = { Text(stringResource(R.string.vps_ssh_password)) },
+                        leadingIcon = { Icon(Icons.Default.Key, contentDescription = stringResource(R.string.cd_password)) },
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                    )
+                } else {
+                    OutlinedTextField(
+                        value = form.baseUrl,
+                        onValueChange = { form = form.copy(baseUrl = it, testSucceeded = false, testMessage = null) },
+                        label = { Text(stringResource(R.string.server_url)) },
+                        leadingIcon = { Icon(Icons.Default.Link, contentDescription = stringResource(R.string.cd_server_url)) },
+                        placeholder = { Text("192.168.1.10:4096") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        isError = form.baseUrl.isNotBlank() && form.normalizedUrl == null,
+                        supportingText =
+                            if (form.baseUrl.isNotBlank() && form.normalizedUrl == null) {
+                                { Text(stringResource(R.string.remote_url_invalid)) }
+                            } else {
+                                null
+                            },
+                    )
+                    OutlinedTextField(
+                        value = form.username,
+                        onValueChange = { form = form.copy(username = it) },
+                        label = { Text(stringResource(R.string.username)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = form.password,
+                        onValueChange = { form = form.copy(password = it, testSucceeded = false, testMessage = null) },
+                        label = { Text(stringResource(R.string.password)) },
+                        leadingIcon = { Icon(Icons.Default.Key, contentDescription = stringResource(R.string.cd_password)) },
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                    )
+                }
                 // No cleartext opt-in here: OpenCodeUrl.normalize already limits plain HTTP to
                 // loopback, RFC1918, link-local, Tailscale CGNAT and .local hosts, and anything
                 // beyond that has to be https. A checkbox would only add a step in front of the

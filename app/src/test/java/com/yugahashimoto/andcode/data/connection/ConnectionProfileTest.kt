@@ -39,4 +39,28 @@ class ConnectionProfileTest {
 
         assertFalse(profile.toString().contains("super-secret"))
     }
+
+    @Test
+    fun `ssh connection profile round trips and redacts secrets`() {
+        val vps =
+            ConnectionProfile(
+                id = "vps-test",
+                name = "My VPS",
+                baseUrl = "http://127.0.0.1:4099",
+                isSsh = true,
+                sshHost = "85.192.20.22",
+                sshPort = 9714,
+                sshUser = "root",
+                sshPassword = "vps-password",
+                sshKey = "ssh-ed25519 AAAAC3...",
+                remotePort = 4099,
+            )
+
+        val encoded = ConnectionProfileCodec.encode(listOf(vps))
+        val decoded = ConnectionProfileCodec.decode(encoded).first()
+
+        assertEquals(vps, decoded)
+        assertFalse(vps.toString().contains("vps-password"))
+        assertFalse(vps.toString().contains("AAAAC3"))
+    }
 }

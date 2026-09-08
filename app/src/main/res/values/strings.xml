@@ -519,6 +519,22 @@
     <string name="remote_test_connection_button">Test connection</string>
     <string name="remote_save_connection_button">Save this connection</string>
 
+    <!-- VPS / Remote Server Connection -->
+    <string name="vps_tab_ssh">VPS / Remote (SSH)</string>
+    <string name="vps_tab_direct">Direct HTTP / LAN</string>
+    <string name="vps_setup_intro">Connect to any VPS or server (Ubuntu, Debian, Alpine, CentOS, Arch, ARM64/x86_64). Enter your SSH details and yCode will automatically detect the system, install OpenCode, and establish a secure encrypted tunnel.</string>
+    <string name="vps_ssh_host">VPS Host / IP</string>
+    <string name="vps_ssh_port">SSH Port</string>
+    <string name="vps_ssh_user">SSH Username</string>
+    <string name="vps_ssh_password">SSH Password</string>
+    <string name="vps_ssh_key">SSH Private Key (Optional)</string>
+    <string name="vps_remote_port">Internal OpenCode Port</string>
+    <string name="vps_setup_button">Setup &amp; Connect VPS</string>
+    <string name="vps_test_button">Test SSH Connection</string>
+    <string name="vps_setting_up">Setting up VPS...</string>
+    <string name="vps_view_logs">Show installation details</string>
+    <string name="vps_hide_logs">Hide installation details</string>
+
     <!-- Redesign: settings V2 -->
     <string name="section_assistant_settings">Assistant settings</string>
     <string name="section_system_settings">System settings</string>

@@ -15,9 +15,16 @@ data class ConnectionProfile(
     @SerialName("password") val password: String? = null,
     @SerialName("allowInsecureLan") val allowInsecureLan: Boolean = false,
     @SerialName("pinSha256") val pinSha256: String? = null,
+    @SerialName("isSsh") val isSsh: Boolean = false,
+    @SerialName("sshHost") val sshHost: String? = null,
+    @SerialName("sshPort") val sshPort: Int = 22,
+    @SerialName("sshUser") val sshUser: String = "root",
+    @SerialName("sshPassword") val sshPassword: String? = null,
+    @SerialName("sshKey") val sshKey: String? = null,
+    @SerialName("remotePort") val remotePort: Int = 4099,
 ) {
     override fun toString(): String =
-        "ConnectionProfile(id=$id, name=$name, baseUrl=$baseUrl, username=$username, password=<redacted>, allowInsecureLan=$allowInsecureLan, pinSha256=<redacted>)"
+        "ConnectionProfile(id=$id, name=$name, baseUrl=$baseUrl, isSsh=$isSsh, sshHost=$sshHost, sshPort=$sshPort, sshUser=$sshUser, remotePort=$remotePort, password=<redacted>, allowInsecureLan=$allowInsecureLan, pinSha256=<redacted>)"
 }
 
 object ConnectionProfileCodec {

@@ -36,7 +36,17 @@ import kotlinx.serialization.json.JsonObject
 
 class RemoteOpenCodeBackend(
     private val profile: ConnectionProfile,
-    private val client: OpenCodeApiClient = OpenCodeApiClient(profile),
+    private val sshManager: VpsSshManager? = null,
+    private val client: OpenCodeApiClient =
+        OpenCodeApiClient(
+            profile = profile,
+            urlProvider =
+                if (profile.isSsh && sshManager != null) {
+                    { "http://127.0.0.1:${sshManager.getActiveLocalPort(profile.id) ?: profile.remotePort}" }
+                } else {
+                    null
+                },
+        ),
 ) : OpenCodeBackend {
     override val id: String = profile.id
     override val displayName: String = profile.name

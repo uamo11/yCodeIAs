@@ -41,8 +41,13 @@ fun NavGraphBuilder.workspaceNavGraph(
     completeOnboardingAndGoToChat: () -> Unit,
 ) {
     composable(ROUTE_REMOTE_CONNECTION) {
+        val context = androidx.compose.ui.platform.LocalContext.current
         RemoteConnectionScreen(
             onTestConnection = workspaceViewModel::testConnection,
+            onSetupVps = { form, onProgress ->
+                val script = context.assets.open("scripts/vps_bootstrap.sh").bufferedReader().use { it.readText() }
+                workspaceViewModel.setupVps(form, script, onProgress)
+            },
             // Saving here is the user pressing "connect", so the PC becomes the active runtime even
             // when an Android-local runtime is already set up and selected.
             onSaveConnection = { form -> workspaceViewModel.saveConnection(form, activate = true) },

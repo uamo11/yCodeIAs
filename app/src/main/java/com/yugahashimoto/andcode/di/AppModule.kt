@@ -158,6 +158,7 @@ val appModule =
         }
 
         single { LocalRuntimeServiceController(androidContext()) }
+        single { com.yugahashimoto.andcode.runtime.remote.VpsSshManagerHolder.instance }
 
         single {
             RuntimeRegistry(

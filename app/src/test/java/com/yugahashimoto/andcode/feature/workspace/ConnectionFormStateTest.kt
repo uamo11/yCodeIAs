@@ -61,4 +61,28 @@ class ConnectionFormStateTest {
             ).canSave,
         )
     }
+
+    @Test
+    fun `vps ssh form can save when name and host are provided`() {
+        val form = ConnectionFormState(
+            mode = ConnectionMode.VPS_SSH,
+            name = "Test VPS",
+            sshHost = "85.192.20.22",
+            sshPort = "9714",
+            sshUser = "root",
+            sshPassword = "password123",
+            remotePort = "4099",
+        )
+
+        assertTrue(form.canSave)
+        val profile = form.toProfile()
+        assertTrue(profile.isSsh)
+        assertEquals("Test VPS", profile.name)
+        assertEquals("85.192.20.22", profile.sshHost)
+        assertEquals(9714, profile.sshPort)
+        assertEquals("root", profile.sshUser)
+        assertEquals("password123", profile.sshPassword)
+        assertEquals(4099, profile.remotePort)
+        assertEquals("http://127.0.0.1:4099", profile.baseUrl)
+    }
 }

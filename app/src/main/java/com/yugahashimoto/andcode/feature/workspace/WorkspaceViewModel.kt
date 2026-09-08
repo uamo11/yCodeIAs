@@ -20,6 +20,9 @@ import com.yugahashimoto.andcode.runtime.local.ClaudeCodeUiState
 import com.yugahashimoto.andcode.runtime.local.ClaudePermissionMode
 import com.yugahashimoto.andcode.runtime.local.LocalRuntimeManager
 import com.yugahashimoto.andcode.runtime.local.LocalRuntimeServiceController
+import com.yugahashimoto.andcode.runtime.remote.VpsBootstrapResult
+import com.yugahashimoto.andcode.runtime.remote.VpsSshManager
+import com.yugahashimoto.andcode.runtime.remote.VpsSshManagerHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -99,6 +102,7 @@ class WorkspaceViewModel(
             workspaceHostDir,
             deviceStorage,
         ),
+    private val vpsSshManager: VpsSshManager = VpsSshManagerHolder.instance,
 ) : ViewModel() {
     private val registeredTick = MutableStateFlow(0)
     private val claudeState: StateFlow<ClaudeCodeUiState> =
@@ -330,7 +334,34 @@ class WorkspaceViewModel(
         if (!form.canSave) {
             return Result.failure(IllegalArgumentException(incompleteConnectionMessage))
         }
-        return runCatching { OpenCodeApiClient(form.toProfile()).health() }
+        val profile = form.toProfile()
+        if (profile.isSsh) {
+            val sshTest = vpsSshManager.testConnection(profile)
+            if (sshTest.isFailure) {
+                return Result.failure(sshTest.exceptionOrNull() ?: Exception("Conexión SSH fallida"))
+            }
+            return runCatching {
+                val localPort = vpsSshManager.ensureTunnel(profile)
+                val testClient =
+                    OpenCodeApiClient(
+                        profile = profile,
+                        urlProvider = { "http://127.0.0.1:$localPort" },
+                    )
+                testClient.health()
+            }.recover {
+                OpenCodeHealth(healthy = true, version = "SSH OK (OpenCode no iniciado)")
+            }
+        }
+        return runCatching { OpenCodeApiClient(profile).health() }
+    }
+
+    suspend fun setupVps(
+        form: ConnectionFormState,
+        bootstrapScript: String,
+        onProgress: (String) -> Unit,
+    ): Result<VpsBootstrapResult> {
+        val profile = form.toProfile()
+        return vpsSshManager.setupVps(profile, bootstrapScript, onProgress)
     }
 
     /** [agents] is the setup guide's selection; every other caller means OpenCode alone. */

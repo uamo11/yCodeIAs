@@ -36,7 +36,8 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class RemoteRuntimeTarget(
     val profile: ConnectionProfile,
-    private val backend: RemoteOpenCodeBackend = RemoteOpenCodeBackend(profile),
+    private val sshManager: VpsSshManager = VpsSshManagerHolder.instance,
+    private val backend: RemoteOpenCodeBackend = RemoteOpenCodeBackend(profile, sshManager),
 ) : RuntimeTarget {
     override val id: String = profile.id
     override val displayName: String = profile.name
@@ -54,6 +55,16 @@ class RemoteRuntimeTarget(
         if (mutableState.value !is RuntimeState.Connected) {
             mutableState.value = RuntimeState.Connecting
         }
+
+        if (profile.isSsh) {
+            val tunnelRes = runCatching { sshManager.ensureTunnel(profile) }
+            if (tunnelRes.isFailure) {
+                val err = tunnelRes.exceptionOrNull()?.safeMessage("Error al conectar túnel SSH") ?: "Fallo de túnel SSH"
+                mutableState.value = RuntimeState.Failed(err)
+                return Result.failure(tunnelRes.exceptionOrNull() ?: Exception(err))
+            }
+        }
+
         return runCatching { backend.health() }
             .onSuccess { health ->
                 mutableState.value =
@@ -69,6 +80,9 @@ class RemoteRuntimeTarget(
     }
 
     override fun disconnect() {
+        if (profile.isSsh) {
+            sshManager.disconnect(profile.id)
+        }
         mutableState.value = RuntimeState.Disconnected
     }
 
