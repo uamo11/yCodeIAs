@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
@@ -286,8 +287,9 @@ fun SettingsScreenV2(
                 )
                 SettingsDivider()
                 SettingsRow(
-                    icon = Icons.Default.Router,
+                    icon = Icons.Default.Dns,
                     title = stringResource(R.string.remote_connection_row),
+                    value = stringResource(R.string.remote_connection_vps_hint),
                     onClick = onOpenRemoteConnection,
                 )
                 SettingsDivider()

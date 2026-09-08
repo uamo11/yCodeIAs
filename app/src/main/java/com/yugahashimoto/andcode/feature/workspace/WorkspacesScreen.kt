@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Computer
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.DriveFolderUpload
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
@@ -36,6 +37,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.WifiFind
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -105,6 +107,7 @@ fun WorkspacesScreen(
     onRemoveProject: (String) -> Unit = {},
     onDeleteProjectFiles: (String) -> Unit = {},
     onDismissDeleteFailure: (String) -> Unit = {},
+    onOpenRemoteConnection: () -> Unit = {},
     onBack: () -> Unit = {},
 ) {
     val localRuntimeActive =
@@ -207,6 +210,25 @@ fun WorkspacesScreen(
                     IconButton(onClick = onRefresh, enabled = !state.isRefreshing) {
                         Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.refresh))
                     }
+                }
+            }
+
+            item {
+                Button(
+                    onClick = onOpenRemoteConnection,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        ),
+                ) {
+                    Icon(Icons.Default.Dns, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.connect_vps_ssh_button),
+                        fontWeight = FontWeight.SemiBold,
+                    )
                 }
             }
 

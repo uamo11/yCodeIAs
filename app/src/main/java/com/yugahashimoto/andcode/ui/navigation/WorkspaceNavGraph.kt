@@ -85,6 +85,7 @@ fun NavGraphBuilder.workspaceNavGraph(
             onRemoveProject = workspaceViewModel::removeProject,
             onDeleteProjectFiles = workspaceViewModel::deleteProjectFiles,
             onDismissDeleteFailure = workspaceViewModel::dismissDeleteFailure,
+            onOpenRemoteConnection = { navController.navigate(ROUTE_REMOTE_CONNECTION) },
             onBack = { navController.popBackStack() },
         )
     }

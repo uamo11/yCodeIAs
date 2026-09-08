@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Computer
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.yugahashimoto.andcode.R
 import com.yugahashimoto.andcode.ui.theme.AndCodeTheme
 
-private enum class OnboardingOption { ANDROID, REMOTE }
+private enum class OnboardingOption { ANDROID, VPS, REMOTE }
 
 /** First run requires one usable execution path before chat can start. */
 @Composable
@@ -103,6 +104,15 @@ fun OnboardingChoiceScreen(
         )
         Spacer(Modifier.height(10.dp))
         OnboardingCard(
+            icon = Icons.Default.Dns,
+            title = stringResource(R.string.onboarding_vps_title),
+            description = stringResource(R.string.onboarding_vps_desc),
+            badge = stringResource(R.string.onboarding_vps_badge),
+            selected = selected == OnboardingOption.VPS,
+            onClick = { selected = OnboardingOption.VPS },
+        )
+        Spacer(Modifier.height(10.dp))
+        OnboardingCard(
             icon = Icons.Default.Computer,
             title = stringResource(R.string.onboarding_remote_title),
             description = stringResource(R.string.onboarding_remote_desc),
@@ -122,7 +132,10 @@ fun OnboardingChoiceScreen(
         Spacer(Modifier.height(24.dp))
         Button(
             onClick = {
-                if (selected == OnboardingOption.ANDROID) onSelectAndroid() else onSelectRemote()
+                when (selected) {
+                    OnboardingOption.ANDROID -> onSelectAndroid()
+                    OnboardingOption.VPS, OnboardingOption.REMOTE -> onSelectRemote()
+                }
             },
             modifier =
                 Modifier
@@ -137,10 +150,10 @@ fun OnboardingChoiceScreen(
         ) {
             Text(
                 text =
-                    if (selected == OnboardingOption.ANDROID) {
-                        stringResource(R.string.onboarding_primary_button_android)
-                    } else {
-                        stringResource(R.string.onboarding_primary_button_remote)
+                    when (selected) {
+                        OnboardingOption.ANDROID -> stringResource(R.string.onboarding_primary_button_android)
+                        OnboardingOption.VPS -> stringResource(R.string.onboarding_primary_button_vps)
+                        OnboardingOption.REMOTE -> stringResource(R.string.onboarding_primary_button_remote)
                     },
                 fontWeight = FontWeight.SemiBold,
             )

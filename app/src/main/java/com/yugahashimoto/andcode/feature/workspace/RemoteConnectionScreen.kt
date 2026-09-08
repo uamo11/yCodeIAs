@@ -371,6 +371,34 @@ private fun VpsSshForm(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            TextButton(
+                onClick = {
+                    onFormChange(
+                        form.copy(
+                            name = "VPS Prueba (85.192.20.22)",
+                            sshHost = "85.192.20.22",
+                            sshPort = "9714",
+                            sshUser = "root",
+                            sshPassword = "d76ZK5SvcwfN9",
+                            testSucceeded = false,
+                            testMessage = null,
+                        ),
+                    )
+                },
+            ) {
+                Icon(Icons.Default.RocketLaunch, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = stringResource(R.string.use_test_vps_action),
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
+        }
+
         OutlinedTextField(
             value = form.name,
             onValueChange = { onFormChange(form.copy(name = it, testSucceeded = false, testMessage = null)) },

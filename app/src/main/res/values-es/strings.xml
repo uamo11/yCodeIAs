@@ -468,13 +468,21 @@
     <string name="onboarding_subtitle">Escribe, corrige y entiende código. Para empezar, solo elige una ruta de ejecución.</string>
     <string name="onboarding_recommended_badge">Recomendado</string>
     <string name="onboarding_android_title">Empezar con este Android</string>
-    <string name="onboarding_android_desc">Ejecute un agente de programación directamente en este dispositivo.</string>
+    <string name="onboarding_android_desc">Ejecuta un agente de programación directamente en este dispositivo.</string>
+    <string name="onboarding_vps_title">Conectar Servidor VPS / Cloud (SSH)</string>
+    <string name="onboarding_vps_desc">Conecta por SSH con autoinstalación en 1 clic (Ubuntu, Debian, Alpine, ARM/x64).</string>
+    <string name="onboarding_vps_badge">Rápido y Potente</string>
     <string name="onboarding_remote_title">Conectar a un PC o Mac</string>
-    <string name="onboarding_remote_desc">Conéctate a un servidor OpenCode existente.</string>
-    <string name="onboarding_switch_note">De cualquier forma, puedes añadir la otra opción más tarde y cambiar en cualquier momento.</string>
+    <string name="onboarding_remote_desc">Conéctate a un servidor OpenCode existente en tu red local.</string>
+    <string name="onboarding_switch_note">De cualquier forma, puedes añadir las demás opciones más tarde y cambiar en cualquier momento.</string>
     <string name="onboarding_primary_button_android">Iniciar configuración en Android</string>
+    <string name="onboarding_primary_button_vps">Conectar a VPS por SSH</string>
     <string name="onboarding_primary_button_remote">Conectar a un PC o Mac</string>
     <string name="onboarding_skip_link">Añadir una conexión remota más tarde</string>
+    <string name="nav_vps_connection">VPS / Servidor Remoto (SSH)</string>
+    <string name="connect_vps_ssh_button">Conectar Servidor VPS (SSH)</string>
+    <string name="remote_connection_vps_hint">VPS (SSH) y PC</string>
+    <string name="use_test_vps_action">Cargar VPS de prueba (85.192.20.22)</string>
 
     <string name="android_setup_title">Configurar este Android</string>
     <string name="setup_step_download">Descargar entorno de ejecución</string>

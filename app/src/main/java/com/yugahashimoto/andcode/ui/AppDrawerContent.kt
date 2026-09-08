@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Schedule
@@ -253,6 +254,16 @@ fun AppDrawerContent(
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.42f))
+            DrawerDestinationRow(
+                icon = Icons.Default.Dns,
+                label = stringResource(R.string.nav_vps_connection),
+                onClick = { onNavigate("remote-connection") },
+            )
+            DrawerDestinationRow(
+                icon = Icons.Default.Folder,
+                label = stringResource(R.string.nav_workspaces),
+                onClick = { onNavigate("workspaces") },
+            )
             DrawerDestinationRow(
                 icon = Icons.Default.Schedule,
                 label = stringResource(R.string.nav_schedules),

@@ -55,6 +55,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Menu
@@ -70,6 +71,7 @@ import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -930,6 +932,20 @@ private fun RuntimeSetupRequiredState(
             modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
         ) {
             Text(stringResource(R.string.setup_this_android_action))
+        }
+        Spacer(Modifier.height(10.dp))
+        Button(
+            onClick = onOpenRemoteSetup,
+            modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                ),
+        ) {
+            Icon(Icons.Default.Dns, contentDescription = null)
+            Spacer(Modifier.padding(horizontal = 4.dp))
+            Text(stringResource(R.string.connect_vps_ssh_button))
         }
         Spacer(Modifier.height(10.dp))
         OutlinedButton(

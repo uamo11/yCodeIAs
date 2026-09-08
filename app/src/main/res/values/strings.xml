@@ -477,12 +477,20 @@
     <string name="onboarding_recommended_badge">Recommended</string>
     <string name="onboarding_android_title">Start with this Android</string>
     <string name="onboarding_android_desc">Run a coding agent directly on this device.</string>
+    <string name="onboarding_vps_title">Connect to VPS / Cloud (SSH)</string>
+    <string name="onboarding_vps_desc">Connect via SSH with 1-click auto-bootstrap (Ubuntu, Debian, Alpine, ARM/x64).</string>
+    <string name="onboarding_vps_badge">Fast &amp; Powerful</string>
     <string name="onboarding_remote_title">Connect to a PC or Mac</string>
-    <string name="onboarding_remote_desc">Connect to an existing OpenCode server.</string>
-    <string name="onboarding_switch_note">Either way, you can add the other option later and switch anytime.</string>
+    <string name="onboarding_remote_desc">Connect to an existing OpenCode server on your local network.</string>
+    <string name="onboarding_switch_note">Either way, you can add the other options later and switch anytime.</string>
     <string name="onboarding_primary_button_android">Start setup on Android</string>
+    <string name="onboarding_primary_button_vps">Connect to VPS via SSH</string>
     <string name="onboarding_primary_button_remote">Connect to a PC or Mac</string>
     <string name="onboarding_skip_link">Add a remote connection later</string>
+    <string name="nav_vps_connection">VPS / Remote Server (SSH)</string>
+    <string name="connect_vps_ssh_button">Connect VPS Server (SSH)</string>
+    <string name="remote_connection_vps_hint">VPS (SSH) &amp; PC</string>
+    <string name="use_test_vps_action">Load test VPS (85.192.20.22)</string>
 
     <!-- Redesign: Android local setup -->
     <string name="android_setup_title">Set up this Android</string>
