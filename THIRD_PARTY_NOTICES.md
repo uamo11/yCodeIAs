@@ -182,6 +182,16 @@ and its committed output at
 Optional: use [Syft](https://github.com/anchore/syft) or the Gradle CycloneDX plugin in CI for
 SPDX/CycloneDX output.
 
+## Website compatibility visual assets
+
+The landing pages (`pages/` and `docs/`) display third-party marks/icons strictly for compatibility identification and nominative fair use (to identify supported tool integrations: Claude Code, Google Antigravity, and OpenCode):
+
+| Asset | Component | Source / Rights Holder | Attribution & Terms |
+|---|---|---|---|
+| `ai-claudecode.webp` | Claude Code mascot mark | Anthropic, PBC | Used solely under nominative fair use to identify compatibility with Claude Code CLI. All rights reserved by Anthropic, PBC. |
+| `ai-antigravity.png` | Google Antigravity mark | Google LLC | Used solely under nominative fair use to identify compatibility with Google Antigravity. All rights reserved by Google LLC. |
+| `ai-opencode.png` | OpenCode icon | Anomaly Innovations / OpenCode project | Used to identify compatibility with OpenCode. All rights reserved by upstream rights holders. |
+
 ## In-app access
 
 This file, along with [PRIVACY.md](PRIVACY.md), [TERMS.md](TERMS.md),

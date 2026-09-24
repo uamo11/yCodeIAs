@@ -13,11 +13,13 @@ used solely to identify and describe compatibility with the corresponding third-
 e.g., to state that AndCode can launch the official Claude Code CLI — and not to claim sponsorship,
 endorsement, or affiliation.
 
-Any icon in AndCode's UI that visually represents a third-party CLI is either the third-party
-project's own openly licensed mark (attributed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md))
-or an AndCode-original, neutral icon created to identify that integration without reproducing the
-rights holder's logo. See [docs/AUTHENTICATION_AND_DATA_FLOW.md](docs/AUTHENTICATION_AND_DATA_FLOW.md)
-for how each integration actually works.
+Any icon or logo in yCode's UI or landing pages (`pages/`, `docs/`) that visually represents a
+third-party tool or CLI is used solely under nominative fair use to identify compatibility with that
+corresponding product (attributed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)) without
+claiming ownership, sponsorship, or affiliation, or is an original neutral icon created to
+identify that integration without reproducing the rights holder's logo. See
+[docs/AUTHENTICATION_AND_DATA_FLOW.md](docs/AUTHENTICATION_AND_DATA_FLOW.md) for how each integration
+actually works.
 
 If you are a rights holder and believe an asset in this repository misuses your mark, please open an
 issue at [yuga-hashimoto/and-code](https://github.com/yuga-hashimoto/and-code/issues).

@@ -248,6 +248,136 @@
     .closing-brand p { margin: 0; color: var(--muted); font-size: 0.8rem; }
     .closing-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 
+    .compatibility-section {
+      padding: 96px 0 108px;
+      border-bottom: 1px solid var(--line-soft);
+      background: linear-gradient(180deg, rgba(8, 13, 19, 0.45) 0%, rgba(17, 26, 37, 0.35) 50%, rgba(8, 13, 19, 0.6) 100%);
+    }
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .app-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 28px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-md);
+      background: linear-gradient(145deg, rgba(22, 35, 49, 0.9), rgba(13, 21, 30, 0.96));
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+      overflow: hidden;
+    }
+    .app-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(110, 168, 254, 0.5), transparent);
+      opacity: 0;
+      transition: opacity 180ms ease;
+    }
+    .app-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(110, 168, 254, 0.5);
+      background: linear-gradient(145deg, rgba(28, 46, 65, 0.95), rgba(13, 21, 30, 0.96));
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    }
+    .app-card:hover::before {
+      opacity: 1;
+    }
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .app-icon-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: #090e15;
+      border: 1px solid rgba(146, 168, 194, 0.2);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .app-icon-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .app-icon-wrapper img.icon-contain {
+      object-fit: contain;
+      padding: 9px;
+    }
+    .app-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 11px;
+      border-radius: 20px;
+      background: rgba(85, 209, 135, 0.1);
+      border: 1px solid rgba(85, 209, 135, 0.25);
+      color: var(--success);
+      font: 600 0.7rem/1 'DM Mono', monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .app-status .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px rgba(85, 209, 135, 0.6);
+    }
+    .app-category {
+      color: var(--teal);
+      font: 500 0.72rem/1.2 'DM Mono', monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .app-card h3 {
+      margin: 0 0 10px;
+      color: var(--cream);
+      font-size: 1.25rem;
+      letter-spacing: -0.03em;
+    }
+    .app-card p {
+      margin-bottom: 22px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.7;
+      flex-grow: 1;
+    }
+    .app-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 18px;
+      border-top: 1px solid var(--line-soft);
+    }
+    .app-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: rgba(110, 168, 254, 0.08);
+      border: 1px solid rgba(110, 168, 254, 0.2);
+      color: #b7d5ff;
+      font: 500 0.72rem/1.2 'DM Mono', monospace;
+    }
+
     footer { padding: 32px 0 42px; border-top: 1px solid var(--line-soft); }
     .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
     .footer-brand { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 0.78rem; font-weight: 700; }
@@ -261,6 +391,7 @@
       .hero-grid { grid-template-columns: 1fr 0.88fr; gap: 26px; }
       .hero-visual { min-height: 510px; transform: scale(0.9); transform-origin: center right; }
       .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .apps-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
     }
     @media (max-width: 800px) {
       .container { width: min(100% - 34px, 620px); }
@@ -279,6 +410,8 @@
       .section-heading > p { margin-top: 18px; }
       .showcase-panel { grid-template-columns: 1fr; gap: 34px; }
       .showcase-image { order: -1; }
+      .apps-grid { grid-template-columns: 1fr; }
+      .compatibility-section { padding: 76px 0; }
       .steps { grid-template-columns: 1fr; }
       .step:not(:last-child)::after { top: calc(100% + 1px); left: 43px; width: 1px; height: 23px; }
       .closing-panel { display: block; }
@@ -305,6 +438,7 @@
       .feature-grid { grid-template-columns: 1fr; }
       .feature-card { min-height: 0; }
       .showcase-panel { padding: 22px; }
+      .app-card { padding: 22px; }
       .footer-inner { display: block; }
       .footer-links { margin-top: 18px; }
     }
@@ -318,6 +452,7 @@
         <span>yCode</span>
       </a>
       <nav class="site-nav" aria-label="Primary navigation">
+        <a href="#compatibility">Compatibility</a>
         <a href="#features">Features</a>
         <a href="#how-it-works">How it works</a>
       </nav>
@@ -363,6 +498,71 @@
           <div class="proof-item"><span class="proof-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2" /><path d="M10 6h4M10 18h4" stroke-linecap="round" /></svg></span><span>Native Android UI</span></div>
           <div class="proof-item"><span class="proof-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="7" cy="12" r="3" /><circle cx="17" cy="6" r="3" /><circle cx="17" cy="18" r="3" /><path d="m9.7 10.5 4.6-3M9.7 13.5l4.6 3" stroke-linecap="round" /></svg></span><span>On-device or remote</span></div>
           <div class="proof-item"><span class="proof-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 2.9 8.5 7 10 4.1-1.5 7-5.5 7-10V6l-7-3Z" /><path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round" /></svg></span><span>yCode source: MIT licensed</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="compatibility" class="compatibility-section" aria-labelledby="compatibility-title">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <div class="section-kicker">Multi-Agent Ecosystem</div>
+            <h2 id="compatibility-title">Compatible with your favorite coding agents.</h2>
+          </div>
+          <p>Run your preferred agent directly on Android or bridge to external workstations. yCode offers first-class compatibility and dedicated workflows for leading tools.</p>
+        </div>
+
+        <div class="apps-grid">
+          <article class="app-card">
+            <div class="app-header">
+              <div class="app-icon-wrapper">
+                <img src="ai-claudecode.webp" alt="Claude Code logo" width="64" height="64" />
+              </div>
+              <span class="app-status"><span class="status-dot" aria-hidden="true"></span> Compatible</span>
+            </div>
+            <div class="app-category">Anthropic</div>
+            <h3>Claude Code</h3>
+            <p>Execute Claude Code commands, autonomously plan edits, inspect file diffs, and review tool actions directly inside yCode's managed mobile environment.</p>
+            <div class="app-tags">
+              <span class="app-tag">On-Device CLI</span>
+              <span class="app-tag">Tool Approvals</span>
+              <span class="app-tag">Diff Inspector</span>
+            </div>
+          </article>
+
+          <article class="app-card">
+            <div class="app-header">
+              <div class="app-icon-wrapper">
+                <img class="icon-contain" src="ai-antigravity.png" alt="Google Antigravity logo" width="64" height="64" />
+              </div>
+              <span class="app-status"><span class="status-dot" aria-hidden="true"></span> Compatible</span>
+            </div>
+            <div class="app-category">Google DeepMind</div>
+            <h3>Google Antigravity</h3>
+            <p>Seamlessly pair-program with Antigravity agents on Android. Orchestrate subagents, run background skills, generate code, and automate complex development loops.</p>
+            <div class="app-tags">
+              <span class="app-tag">Autonomous Agent</span>
+              <span class="app-tag">Multi-Agent</span>
+              <span class="app-tag">Skills &amp; Workflows</span>
+            </div>
+          </article>
+
+          <article class="app-card">
+            <div class="app-header">
+              <div class="app-icon-wrapper">
+                <img src="ai-opencode.png" alt="OpenCode logo" width="64" height="64" />
+              </div>
+              <span class="app-status"><span class="status-dot" aria-hidden="true"></span> Compatible</span>
+            </div>
+            <div class="app-category">OpenCode Ecosystem</div>
+            <h3>OpenCode</h3>
+            <p>Connect over Wi-Fi/LAN to an OpenCode server running on your workstation, or run local instances right on your device with live streaming responses and session history.</p>
+            <div class="app-tags">
+              <span class="app-tag">Remote Server</span>
+              <span class="app-tag">Local Runtime</span>
+              <span class="app-tag">Live Streaming</span>
+            </div>
+          </article>
         </div>
       </div>
     </section>
@@ -425,6 +625,3 @@
   </footer>
 </body>
 </html>
-
-
-
