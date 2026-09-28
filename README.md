@@ -261,3 +261,6 @@ Runtime generation reuses generic Termux package resolution/extraction logic red
 
 The **AndCode source code** in this repository is [MIT licensed](LICENSE). That license covers AndCode's own Kotlin/Android code only — it does **not** extend to the third-party CLIs, runtimes, or packages AndCode installs or launches (Claude Code, Google Antigravity, OpenCode, PRoot, Alpine/Debian packages, and others), each of which is distributed under its own upstream license. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [TRADEMARKS.md](TRADEMARKS.md).
 
+---
+
+More projects at [uam.lol](https://uam.lol)
